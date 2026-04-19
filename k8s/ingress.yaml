@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spam-detector
+  namespace: spam-detector
+  labels:
+    app.kubernetes.io/name: spam-detector
+  annotations:
+    # 배치 요청 본문이 커질 수 있으니 proxy body 제한을 여유 있게
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: spam-detector.manty.co.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spam-detector
+                port:
+                  number: 80
