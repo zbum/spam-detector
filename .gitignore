@@ -1,0 +1,29 @@
+# Go build
+/dist/
+/bin/
+*.exe
+*.test
+*.out
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code local settings
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python / training
+training/.venv/
+training/__pycache__/
+training/**/__pycache__/
+training/*.pyc
+training/artifacts/
+training/data/
+
+# Logs
+*.log
+*.iml

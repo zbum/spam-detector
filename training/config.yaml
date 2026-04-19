@@ -1,0 +1,35 @@
+data:
+  train_csv: data/train.csv
+  val_csv: data/val.csv
+  test_csv: data/test.csv
+  text_column: text
+  label_column: label
+
+tokenizer:
+  max_length: 200
+  vocab_path: artifacts/vocab.json
+  min_freq: 2
+  reserved_tokens:
+    pad: "<pad>"
+    unk: "<unk>"
+
+model:
+  embedding_dim: 64
+  conv_channels: 128
+  kernel_sizes: [3, 4, 5]
+  dropout: 0.3
+  num_classes: 2
+
+train:
+  batch_size: 128
+  epochs: 15
+  lr: 0.001
+  weight_decay: 0.0001
+  early_stop_patience: 3
+  device: auto
+  seed: 42
+
+output:
+  checkpoint: artifacts/model.pt
+  onnx: artifacts/spam_detector.onnx
+  metrics: artifacts/metrics.json

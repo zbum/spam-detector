@@ -1,0 +1,28 @@
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+
+# Go build artifacts (빌드는 컨테이너 안에서만 수행)
+dist/
+bin/
+*.exe
+*.test
+*.out
+
+# Training은 컨테이너 이미지에 포함하지 않는다
+training/.venv/
+training/__pycache__/
+training/**/__pycache__/
+training/*.pyc
+training/data/
+training/artifacts/
+
+# 문서
+README.md
+*.md
+LICENSE
+
+# 로그
+*.log
