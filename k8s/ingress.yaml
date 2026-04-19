@@ -6,18 +6,21 @@ metadata:
   labels:
     app.kubernetes.io/name: spam-detector
   annotations:
-    # 배치 요청 본문이 커질 수 있으니 proxy body 제한을 여유 있게
+    # /spam-detector/xxx → /xxx 로 rewrite
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/proxy-body-size: "1m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
 spec:
   ingressClassName: nginx
   rules:
-    - host: spam-detector.manty.co.kr
-      http:
+    - http:
         paths:
-          - path: /
-            pathType: Prefix
+          # /spam-detector              → /
+          # /spam-detector/healthz      → /healthz
+          # /spam-detector/classify     → /classify
+          - path: /spam-detector(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: spam-detector
