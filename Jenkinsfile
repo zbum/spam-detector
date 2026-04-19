@@ -79,6 +79,31 @@ pipeline {
       }
     }
 
+    stage('Ensure registry pull secret') {
+      steps {
+        withCredentials([
+          usernamePassword(credentialsId: 'docker-registry-credentials',
+                           usernameVariable: 'REG_USER',
+                           passwordVariable: 'REG_PASS'),
+          file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
+        ]) {
+          sh '''
+            set -e
+            # Namespace 가 없으면 먼저 만든다 (이후 secret 을 그 안에 넣음)
+            kubectl apply -f k8s/namespace.yaml
+
+            # 없으면 생성, 있으면 갱신 — 멱등
+            kubectl -n ${K8S_NAMESPACE} create secret docker-registry registry-manty \
+              --docker-server=${REGISTRY} \
+              --docker-username="$REG_USER" \
+              --docker-password="$REG_PASS" \
+              --docker-email=manty@manty.co.kr \
+              --dry-run=client -o yaml | kubectl apply -f -
+          '''
+        }
+      }
+    }
+
     stage('Deploy to k8s') {
       steps {
         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
