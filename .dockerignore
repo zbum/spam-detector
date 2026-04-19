@@ -17,7 +17,7 @@ training/__pycache__/
 training/**/__pycache__/
 training/*.pyc
 training/data/
-training/artifacts/
+# training/artifacts/ 는 runtime 이미지에 포함되므로 제외하지 않는다
 
 # 문서
 README.md

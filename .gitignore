@@ -21,8 +21,13 @@ training/.venv/
 training/__pycache__/
 training/**/__pycache__/
 training/*.pyc
-training/artifacts/
 training/data/
+
+# 학습 산출물은 런타임 필수 파일만 커밋, PyTorch 체크포인트/메트릭은 제외
+training/artifacts/*
+!training/artifacts/spam_detector.onnx
+!training/artifacts/spam_detector.onnx.data
+!training/artifacts/vocab.json
 
 # Logs
 *.log

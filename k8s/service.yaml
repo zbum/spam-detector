@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spam-detector
+  namespace: spam-detector
+  labels:
+    app.kubernetes.io/name: spam-detector
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: spam-detector
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
