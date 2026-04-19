@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spam-detector
+  labels:
+    app.kubernetes.io/name: spam-detector

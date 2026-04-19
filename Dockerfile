@@ -17,7 +17,7 @@ RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o /out/spam-detector .
 # ---------- runtime stage ----------
 FROM debian:bookworm-slim AS runtime
 
-ARG ORT_VERSION=1.22.0
+ARG ORT_VERSION=1.24.4
 ARG TARGETARCH
 
 RUN apt-get update \
@@ -38,9 +38,14 @@ RUN apt-get update \
 
 COPY --from=builder /out/spam-detector /usr/local/bin/spam-detector
 
-RUN useradd --system --uid 1000 --create-home app
-USER app
+RUN useradd --uid 1000 --create-home app
 WORKDIR /app
+
+# 학습 산출물을 이미지에 포함 (k8s 배포 시 별도 볼륨 마운트 불필요)
+# 재학습 후에는 이미지를 재빌드해야 한다.
+COPY --chown=app:app training/artifacts /app/artifacts
+
+USER app
 
 EXPOSE 8080
 
