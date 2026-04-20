@@ -1,10 +1,10 @@
 # spam-detector
 
-채팅/댓글 스팸 분류기. Google [Magika](https://github.com/google/magika)의 철학을 따라 **작은 Char-CNN 모델 + ONNX Runtime 으로 CPU만 써서 ms 단위 추론**을 목표로 한다.
+채팅/댓글 스팸 분류기. Google [Magika](https://github.com/google/magika)의 철학을 따라 **작은 Char-RNN(BiLSTM) 모델 + ONNX Runtime 으로 CPU만 써서 ms 단위 추론**을 목표로 한다.
 
-- **학습**: Python (PyTorch) 에서 문자 단위 CNN 학습 → ONNX export
+- **학습**: Python (PyTorch) 에서 문자 단위 BiLSTM 학습 → ONNX export
 - **서빙**: Go + `onnxruntime_go` 로 REST API 제공
-- **강점**: 우회 문자열(`ㅅ.ㅍ.ㅏ.ㅁ`), 이모지, 신조어, 오타, 다국어 혼용에 강한 문자 단위 모델
+- **강점**: 우회 문자열(`ㅅ.ㅍ.ㅏ.ㅁ`), 이모지, 신조어, 오타, 다국어 혼용에 강한 문자 단위 모델과 양방향 문맥 표현
 
 > 설계 원리와 ONNX Runtime 내부 동작이 궁금하다면 → **[TRAINING.md](TRAINING.md)** 참조
 
@@ -20,7 +20,7 @@ spam-detector/
 └── training/
     ├── config.yaml              # 하이퍼파라미터/경로
     ├── tokenizer.py             # 문자 단위 토크나이저
-    ├── model.py                 # Char-CNN 정의
+    ├── model.py                 # Char-RNN (BiLSTM) 정의
     ├── dataset.py               # CSV → Dataset
     ├── train.py                 # 학습 스크립트
     ├── export_onnx.py           # .pt → .onnx
@@ -35,7 +35,7 @@ spam-detector/
 
 ## 1. 학습 (Training)
 
-> 학습 파이프라인의 **왜** — Char-CNN 선택 이유, 토크나이저 정규화 규칙, class weight, early stopping 등 설계 근거는 [TRAINING.md](TRAINING.md) 를 참조.
+> 학습 파이프라인의 **왜** — 모델 선택 이유, 토크나이저 정규화 규칙, class weight, early stopping 등 설계 근거는 [TRAINING.md](TRAINING.md) 를 참조.
 
 ### 1.1 사전 준비
 
@@ -89,8 +89,9 @@ python make_sample_data.py
 | `tokenizer.max_length` | 200 | 입력 문자열 최대 길이 (채팅은 보통 짧음) |
 | `tokenizer.min_freq` | 2 | 어휘에 포함되는 최소 출현 횟수 |
 | `model.embedding_dim` | 64 | 문자 임베딩 차원 |
-| `model.conv_channels` | 128 | Conv 출력 채널 |
-| `model.kernel_sizes` | `[3, 4, 5]` | Multi-kernel CNN 필터 크기 |
+| `model.hidden_dim` | 128 | LSTM hidden 차원 |
+| `model.num_layers` | 1 | LSTM 레이어 수 |
+| `model.bidirectional` | `true` | 양방향 LSTM 사용 여부 |
 | `model.dropout` | 0.3 | Dropout 비율 |
 | `train.batch_size` | 128 | 배치 사이즈 |
 | `train.epochs` | 15 | 최대 에폭 |
@@ -298,12 +299,14 @@ curl -s -X POST http://localhost:8080/classify/batch \
 ## 5. End-to-end 흐름 요약
 
 ```bash
-# 1) 학습
+# 1) 학습 (한 번에)
 cd training && source .venv/bin/activate
-python make_sample_data.py          # 또는 실제 data/*.csv 로 교체
-python train.py
-python export_onnx.py
-python verify_onnx.py
+python run_pipeline.py              # 샘플 생성 → 학습 → ONNX 추출 → 검증
+# (또는 개별 실행)
+# python make_sample_data.py        # 또는 실제 data/*.csv 로 교체
+# python train.py
+# python export_onnx.py
+# python verify_onnx.py
 
 # 2) Docker 이미지 빌드
 cd ..

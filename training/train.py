@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from dataset import SpamDataset
-from model import CharCNN
+from model import CharRNN
 from tokenizer import CharTokenizer
 
 
@@ -88,11 +88,12 @@ def main() -> None:
     val_loader = DataLoader(val_ds, batch_size=cfg["train"]["batch_size"])
 
     # 3) Model / optimizer
-    model = CharCNN(
+    model = CharRNN(
         vocab_size=tokenizer.vocab_size,
         embedding_dim=cfg["model"]["embedding_dim"],
-        conv_channels=cfg["model"]["conv_channels"],
-        kernel_sizes=tuple(cfg["model"]["kernel_sizes"]),
+        hidden_dim=cfg["model"]["hidden_dim"],
+        num_layers=cfg["model"]["num_layers"],
+        bidirectional=cfg["model"]["bidirectional"],
         dropout=cfg["model"]["dropout"],
         num_classes=cfg["model"]["num_classes"],
         pad_id=CharTokenizer.PAD_ID,
