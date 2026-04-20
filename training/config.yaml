@@ -15,8 +15,9 @@ tokenizer:
 
 model:
   embedding_dim: 64
-  conv_channels: 128
-  kernel_sizes: [3, 4, 5]
+  hidden_dim: 128
+  num_layers: 1
+  bidirectional: true
   dropout: 0.3
   num_classes: 2
 

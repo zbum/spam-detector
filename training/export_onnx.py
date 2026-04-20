@@ -11,7 +11,7 @@ from pathlib import Path
 import torch
 import yaml
 
-from model import CharCNN
+from model import CharRNN
 from tokenizer import CharTokenizer
 
 
@@ -23,11 +23,12 @@ def main() -> None:
     cfg = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
     tokenizer = CharTokenizer.load(cfg["tokenizer"]["vocab_path"])
 
-    model = CharCNN(
+    model = CharRNN(
         vocab_size=tokenizer.vocab_size,
         embedding_dim=cfg["model"]["embedding_dim"],
-        conv_channels=cfg["model"]["conv_channels"],
-        kernel_sizes=tuple(cfg["model"]["kernel_sizes"]),
+        hidden_dim=cfg["model"]["hidden_dim"],
+        num_layers=cfg["model"]["num_layers"],
+        bidirectional=cfg["model"]["bidirectional"],
         dropout=cfg["model"]["dropout"],
         num_classes=cfg["model"]["num_classes"],
         pad_id=CharTokenizer.PAD_ID,
